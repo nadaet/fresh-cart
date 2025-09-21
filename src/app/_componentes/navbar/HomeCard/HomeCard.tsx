@@ -4,13 +4,13 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import Link from "next/link"
 import React, { useContext } from "react"
 import Image from "next/image"
-import { Daum } from "@/types/wishlist.type"
+import { Product } from "@/types/product.type"   // 👈 بدل Daum خليناه Product
 import AddBtnCart from "../AddBtnCart/AddBtnCart"
 import { wishlistContext } from "@/Context/WishlistContext"
 import { cartContext } from "@/Context/CartContext"
 import { toast } from "sonner"
 
-const HomeCard = ({ product }: { product: Daum }) => {
+const HomeCard = ({ product }: { product: Product }) => {
   const { products: wishlistProducts, addProductToWishlist, removeProductFromWishlist } =
     useContext(wishlistContext)
   const { addProductToCart } = useContext(cartContext)
