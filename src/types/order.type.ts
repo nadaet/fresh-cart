@@ -33,7 +33,7 @@ export interface User {
 export interface CartItem {
   count: number
   _id: string
-  product: OrderProduct
+  product: Product
   price: number
 }
 

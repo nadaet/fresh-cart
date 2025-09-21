@@ -3,13 +3,23 @@
 import { getMyToken } from "@/utilities/token"
 import axios from "axios"
 import { jwtDecode } from "jwt-decode"
-export async function getUserOrder() {
-    const token = await getMyToken()
-    const { id } = jwtDecode(token)
-    if(!token){
-        throw new Error("Login First")
-    }
-    const {data}= await axios.get(`https://ecommerce.routemisr.com/api/v1/orders/user/${id}`)
-    return data 
+
+interface JwtPayload {
+  id: string
 }
 
+export async function getUserOrder() {
+  const token = await getMyToken()
+
+  if (!token) {
+    window.location.href = "/login"
+  }
+
+  const { id } = jwtDecode<JwtPayload>(token as string)
+
+  const { data } = await axios.get(
+    `https://ecommerce.routemisr.com/api/v1/orders/user/${id}`
+  )
+
+  return data
+}

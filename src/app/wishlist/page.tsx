@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import Loading from "../loading"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 const Wishlist = () => {
   const { isLoading, products, removeProductFromWishlist } = useContext(wishlistContext)
@@ -23,7 +24,18 @@ const Wishlist = () => {
   if (isLoading) return <Loading />
 
   if (!products || products.length === 0) {
-    return <p className="text-center mt-10 text-2xl">Wishlist is empty</p>
+    return (
+      <div className="flex justify-center items-center">
+        <Card className="w-3xl mt-6">
+          <CardHeader>
+            <CardTitle className="text-3xl text-green-600">Wishlist</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl">Wishlist is empty, try to add products</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

@@ -1,5 +1,5 @@
 import CredentialsProvider from "next-auth/providers/credentials"
-import { AuthOptions } from "next-auth"
+import { AuthOptions, User } from "next-auth"
 
 export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -14,19 +14,20 @@ export const authOptions: AuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials) return null
 
-        const response = await fetch(`https://ecommerce.routemisr.com/api/v1/auth/signin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-          }),
-        })
+        const response = await fetch(
+          `https://ecommerce.routemisr.com/api/v1/auth/signin`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          }
+        )
 
         const payload = await response.json()
         console.log("Payload:", payload)
@@ -40,11 +41,12 @@ export const authOptions: AuthOptions = {
             id: payload.user._id,
             name: payload.user.name,
             email: payload.user.email,
+            // بنضيف التوكن هنا لكن كـ casting عشان الـ type بتاع User مش فيه token
             token: payload.token,
-          }
+          } as unknown as User
         }
 
-        throw new Error(payload.message || "Failed to login")
+        return null
       },
     }),
   ],
@@ -52,10 +54,10 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = (user as any).id
         token.name = user.name
         token.email = user.email
-        token.token = user.token
+        token.token = (user as any).token
       }
       return token
     },

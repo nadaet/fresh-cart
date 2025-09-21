@@ -1,29 +1,30 @@
 "use client"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
-export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("")
+export default function ResetPasswordPage() {
+  const [newPassword, setNewPassword] = useState("")
   const [message, setMessage] = useState("")
   const router = useRouter()
+  const search = useSearchParams()
+  const email = search.get("email") || ""
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords", {
-        method: "POST",
+      const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/resetPassword", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, newPassword })
       })
       const data = await res.json()
       console.log(data)
 
       if (res.ok) {
-        setMessage(" Code sent to your email")
-        
-        router.push(`/verify-code?email=${encodeURIComponent(email)}`)
+        setMessage("✅ Password reset successfully")
+        router.push("/login")
       } else {
-        setMessage(data.message || " Error sending code")
+        setMessage(data.message || "❌ Error resetting password")
       }
     } catch {
       setMessage("Server error")
@@ -32,18 +33,18 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="w-[400px] mx-auto py-10">
-      <h1 className="text-2xl mb-4 font-bold text-center">Forgot Password</h1>
+      <h1 className="text-2xl mb-4 font-bold text-center">Reset Password</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          type="email"
-          placeholder="Enter your email"
+          type="password"
+          placeholder="New password"
           className="w-full border rounded p-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
           required
         />
         <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">
-          Send Code
+          Reset
         </button>
       </form>
       {message && <p className="mt-4 text-center">{message}</p>}

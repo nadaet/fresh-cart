@@ -1,75 +1,53 @@
 "use client"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
-const codeSchema = z.object({
-  resetCode: z.string().min(6, "Code must be 6 digits"),
-})
-
-type CodeFormData = z.infer<typeof codeSchema>
-
-const VerifyCodePage = () => {
+export default function VerifyCodePage() {
+  const [resetCode, setResetCode] = useState("")
+  const [message, setMessage] = useState("")
   const router = useRouter()
+  const search = useSearchParams()
+  const email = search.get("email") || ""  
 
-  const form = useForm<CodeFormData>({
-    resolver: zodResolver(codeSchema),
-    defaultValues: { resetCode: "" },
-  })
-
-  const onSubmit = async (values: CodeFormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     try {
       const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/verifyResetCode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resetCode: values.resetCode }),
+        body: JSON.stringify({ resetCode })
       })
-
       const data = await res.json()
+      console.log(data)
 
       if (res.ok) {
-        toast.success("Code verified successfully ✅", { position: "top-center" })
-        router.push("/reset-password") // يوديه لصفحة تغيير الباسورد
+        setMessage(" Code verified")
+        router.push(`/reset-password?email=${encodeURIComponent(email)}`)
       } else {
-        toast.error(data.message || "Invalid code ❌", { position: "top-center" })
+        setMessage(data.message || " Invalid code")
       }
-    } catch (error) {
-      toast.error("Server error", { position: "top-center" })
+    } catch {
+      setMessage("Server error")
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md p-8 shadow-lg rounded-lg bg-white">
-        <h2 className="text-2xl font-bold mb-6">Verify Reset Code</h2>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="resetCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reset Code</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Enter the code from email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
-              Verify Code
-            </Button>
-          </form>
-        </Form>
-      </div>
+    <div className="w-[400px] mx-auto py-10">
+      <h1 className="text-2xl mb-4 font-bold text-center">Verify Code</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          placeholder="Enter code"
+          className="w-full border rounded p-2"
+          value={resetCode}
+          onChange={(e) => setResetCode(e.target.value)}
+          required
+        />
+        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">
+          Verify
+        </button>
+      </form>
+      {message && <p className="mt-4 text-center">{message}</p>}
     </div>
   )
 }
-
-export default VerifyCodePage

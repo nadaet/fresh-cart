@@ -9,11 +9,11 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname.toLowerCase()
 
   // الصفحات المفتوحة (مفيش داعي يكون معاك توكن)
-  const authPages = ["/login", "/register", "/forgot-password"]
+  const authPages = ["/login", "/register", "/forgot-password","/verify-code","/reset-password"]
 
   // الصفحات اللي محتاجة توكن
   const protectedRoutes = [
-    "/",
+    
     "/allorders",
     "/payment",
     "/brands",

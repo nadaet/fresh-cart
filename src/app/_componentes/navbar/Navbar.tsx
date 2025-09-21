@@ -26,7 +26,7 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* ===== Desktop Links ===== */}
+        {/* Desktop Links */}
         {status === "authenticated" && (
           <ul className="hidden md:flex gap-6 text-gray-700 items-center">
             <li>
@@ -50,7 +50,7 @@ const Navbar = () => {
           </ul>
         )}
 
-        {/* يمين الناف - Desktop */}
+
         <div className="hidden md:flex items-center gap-6">
           {status === "authenticated" && (
             <>
@@ -100,7 +100,7 @@ const Navbar = () => {
                             <Link href="/allorders" className="block">All Orders</Link>
 
 
-              {/* Cart + Logout عمودي في النص */}
+    
               <div className="flex flex-col items-center gap-4 mt-6 w-full">
                 <Link href="/cart" className="relative cursor-pointer">
                   <i className="fa-solid fa-cart-shopping text-2xl text-black"></i>
