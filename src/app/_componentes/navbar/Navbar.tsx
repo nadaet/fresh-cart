@@ -44,6 +44,9 @@ const Navbar = () => {
             <li>
               <Link className={path === "/brands" ? "text-black" : ""} href="/brands">Brands</Link>
             </li>
+            <li>
+              <Link className={path === "/allorders" ? "text-black" : ""} href="/allorders">All Orders</Link>
+            </li>
           </ul>
         )}
 
@@ -94,6 +97,8 @@ const Navbar = () => {
               <Link href="/products" className="block">Products</Link>
               <Link href="/categories" className="block">Categories</Link>
               <Link href="/brands" className="block">Brands</Link>
+                            <Link href="/allorders" className="block">All Orders</Link>
+
 
               {/* Cart + Logout عمودي في النص */}
               <div className="flex flex-col items-center gap-4 mt-6 w-full">

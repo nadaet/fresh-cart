@@ -1,46 +1,71 @@
 "use client"
 
-import React, { createContext, useState, useEffect } from "react"
+import React, { useEffect, useState, createContext } from "react"
+import { Root, Daum } from "@/types/wishlist.type"
+import { getUserWishlistAction } from "@/WishListAction/getUserWishlist"
 import { AddToWishlistAction } from "@/WishListAction/addToWishlist"
 import { removeFromWishlist } from "@/WishListAction/removeFromWishlist"
 
-export const WishlistContext = createContext<any>(null)
+interface WishlistContextType {
+  isLoading: boolean
+  products: Daum[]
+  addProductToWishlist: (id: string) => Promise<void>
+  removeProductFromWishlist: (id: string) => Promise<void>
+  refreshWishlist: () => Promise<void>
+}
+
+export const wishlistContext = createContext<WishlistContextType>({} as WishlistContextType)
 
 const WishlistContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [wishlist, setWishlist] = useState<any[]>([])
+  const [products, setProducts] = useState<Daum[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  async function addToWishlist(product: any) {
+  const refreshWishlist = async () => {
+    setIsLoading(true)
     try {
-      const data = await AddToWishlistAction(product.id || product._id)
-      setWishlist(data.data) 
-      return data
+      const res: Root = await getUserWishlistAction()
+      setProducts(res.data)
     } catch (error) {
-      console.error("Error adding to wishlist:", error)
+      console.error(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  async function removeFromWishlistAction(id: string) {
+  const addProductToWishlist = async (id: string) => {
     try {
-      const data = await removeFromWishlist(id)
-      setWishlist((prev) => prev.filter((item: any) => item.id !== id && item._id !== id))
-      return data
+      await AddToWishlistAction(id)
+      await refreshWishlist()
     } catch (error) {
-      console.error("Error removing from wishlist:", error)
+      console.error(error)
     }
   }
+
+  const removeProductFromWishlist = async (id: string) => {
+    try {
+      await removeFromWishlist(id)
+      setProducts((prev) => prev.filter((p) => p._id !== id))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    refreshWishlist()
+  }, [])
 
   return (
-    <WishlistContext.Provider
+    <wishlistContext.Provider
       value={{
-        wishlist,
         isLoading,
-        addToWishlist,
-        removeFromWishlist: removeFromWishlistAction,
+        products,
+        addProductToWishlist,
+        removeProductFromWishlist,
+        refreshWishlist,
       }}
     >
       {children}
-    </WishlistContext.Provider>
+    </wishlistContext.Provider>
   )
 }
 

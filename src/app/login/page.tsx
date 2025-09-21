@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { loginSchema, LoginFormData } from "@/schema/login.schema"
 import { signIn } from "next-auth/react"
+import Link from "next/link"
 
 const Login = () => {
   const router = useRouter()
@@ -101,9 +102,9 @@ const Login = () => {
 
             {/* Forget password + Submit */}
             <div className="flex items-center justify-between">
-              <a href="#" className="text-lg font-semibold hover:underline">
-                forget your password ?
-              </a>
+              <Link href="/forgot-password" className="text-lg font-semibold hover:underline text-blue-600">
+  Forget your password?
+</Link>
               <Button
                 type="submit"
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-xl rounded-lg"

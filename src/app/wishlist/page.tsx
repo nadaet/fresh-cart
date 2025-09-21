@@ -1,104 +1,65 @@
 "use client"
 
 import React, { useContext } from "react"
-import Loading from "../loading"
+import { wishlistContext } from "@/Context/WishlistContext"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card"
-import { WishlistContext } from "@/Context/WishlistContext"
+import Loading from "../loading"
 
 const Wishlist = () => {
-  const { isLoading, wishlist, removeFromWishlist } = useContext(WishlistContext)
+  const { isLoading, products, removeProductFromWishlist } = useContext(wishlistContext)
 
-
-  async function handleRemove(productId: string) {
+  const handleRemove = async (id: string) => {
     try {
-      const data = await removeFromWishlist(productId)
-      if (data?.status === "success") {
-        toast.success("Removed from wishlist", {
-          duration: 1000,
-          position: "top-center",
-        })
-      } else {
-        toast.error("Failed to remove", {
-          duration: 1000,
-          position: "top-center",
-        })
-      }
-    } catch (err) {
-      toast.error("Something went wrong", {
-        duration: 1000,
-        position: "top-center",
-      })
+      await removeProductFromWishlist(id)
+      toast.success("Removed from wishlist", { duration: 1000, position: "top-center" })
+    } catch (error) {
+      toast.error("Something went wrong", { duration: 1000, position: "top-center" })
+      console.error(error)
     }
   }
 
-  // ⏳ حالة اللودينج
-  if (isLoading) {
-    return <Loading />
-  }
+  if (isLoading) return <Loading />
 
-  // ❌ حالة الويش ليست فاضية
-  if (!wishlist || wishlist.length === 0) {
-    return (
-      <div className="flex justify-center items-center mt-10">
-        <Card className="w-3xl">
-          <CardHeader>
-            <CardTitle className="text-3xl text-green-600">Wishlist</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl">
-              Wishlist is empty, try adding some products
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  if (!products || products.length === 0) {
+    return <p className="text-center mt-10 text-2xl">Wishlist is empty</p>
   }
 
   return (
-    <div className="w-full md:w-[80%] mx-auto my-10 px-5 md:px-0 bg-slate-100">
-      <div className="p-5">
-        <h1 className="text-2xl font-bold mb-6">Your Wishlist</h1>
+    <div className="w-full md:w-[80%] mx-auto my-10 px-5 md:px-0 bg-slate-100 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold mb-6">Your Wishlist</h1>
 
-        <div className="allProducts">
-          {wishlist.map((product: any, idx: number) => (
-            <div
-              key={idx}
-              className="flex items-center justify-between border-b py-3"
-            >
-           
-              <div className="flex items-center gap-4 mb-2">
-                <div>
-                  <Image
-                    alt={product.title}
-                    src={product.imageCover || "/placeholder.png"}
-                    height={150}
-                    width={150}
-                  />
-                </div>
-                <div>
-                  <h1 className="font-medium text-2xl">{product.title}</h1>
-                  <p className="font-medium">{product.price} EGP</p>
-
-                  <Button
-                    onClick={() => handleRemove(product._id)}
-                    variant="ghost"
-                    className="text-red-600"
-                  >
-                    <i className="fa-solid fa-trash"></i> Remove
-                  </Button>
-                </div>
-              </div>
+      <div className="flex flex-col gap-6">
+        {products.map((product) => (
+          <div
+            key={product._id}
+            className="flex flex-col md:flex-row items-center md:items-start gap-4 border-b pb-4"
+          >
+            <div className="flex-shrink-0">
+              <Image
+                src={product.imageCover || "/placeholder.png"}
+                alt={product.title || "Product image"}
+                width={150}
+                height={150}
+                className="rounded-lg object-cover"
+              />
             </div>
-          ))}
-        </div>
+            <div className="flex-1 flex flex-col justify-between">
+              <div>
+                <h2 className="font-medium text-xl md:text-2xl">{product.title}</h2>
+                <p className="font-medium text-green-700">{product.price} EGP</p>
+              </div>
+              <Button
+                onClick={() => handleRemove(product._id)}
+                variant="ghost"
+                className="text-red-600 mt-2 md:mt-auto"
+              >
+                <i className="fa-solid fa-trash mr-2"></i> Remove
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
