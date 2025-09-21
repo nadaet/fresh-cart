@@ -16,10 +16,11 @@ type CartContextType = {
   cartId: string
   addProductToCart: (id: string) => Promise<any>
   removeCartItem: (id: string) => Promise<Cart | undefined>
-  updateCart: (id: string, count: number) => Promise<void>
+  updateCart: (id: string, count: number) => Promise<Cart | undefined> // 👈 هنا التعديل
   clearCart: () => Promise<void>
   afterPayment: () => void
 }
+
 
 export const cartContext = createContext<CartContextType>({} as CartContextType)
 
