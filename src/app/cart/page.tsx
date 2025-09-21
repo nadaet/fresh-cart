@@ -93,28 +93,24 @@ const Cart = () => {
                   <h1 className="font-medium text-2xl">{product.product.title}</h1>
                   <p className="font-medium">{product.price} EGP</p>
 
-                  <Button
-                    onClick={() => removeItem(product.product.id)}
-                    variant="ghost"
-                    className="text-red-600"
-                  >
-                    <i className="fa-solid fa-trash"></i> Remove
-                  </Button>
+                 <Button
+  onClick={() => removeItem(product.product._id)}   // ✅
+  variant="ghost"
+  className="text-red-600"
+>
+  <i className="fa-solid fa-trash"></i> Remove
+</Button>
                 </div>
               </div>
 
               {/* controls */}
-              <div className='flex items-center gap-2'>
-                <Button onClick={()=>handleUpdate(product.product.id , product.count + 1)}>
-  +
-</Button>
-
-<Button onClick={()=>handleUpdate(product.product.id , product.count - 1)}>
-  -
-</Button>
+<div className='flex items-center gap-2'>
+  <Button onClick={()=>handleUpdate(product.product._id , product.count + 1)}> + </Button>
+  <Button onClick={()=>handleUpdate(product.product._id , product.count - 1)}> - </Button>
+</div>
 
               </div>
-            </div>
+            
           ))}
         </div>
 
