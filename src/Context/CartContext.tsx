@@ -1,23 +1,34 @@
 "use client"
 import React, { useEffect, useState, createContext } from "react"
 import { getUserCartAction } from "@/CartAction/getUserCart"
-import { Cart } from "@/types/cart.type"
+import { Cart, ProductCart } from "@/types/cart.type"   // 👈 اتأكد ان ProductCart متعرف هنا
 import { AddToCartAction } from "@/CartAction/addToCart"
 import { removeCartItemAction } from "@/CartAction/removeCartItem"
-import { log } from "console"
 import { updateCartAction } from "@/CartAction/updateCart"
 import { clearCartAction } from "@/CartAction/clearCart"
 
+// 👇 ممكن تعرفي نوع الـ context بدل ما تعمليه any
+type CartContextType = {
+  isLoading: boolean
+  numOfCartItems: number
+  products: ProductCart[]
+  totalCartPrice: number
+  cartId: string
+  addProductToCart: (id: string) => Promise<any>
+  removeCartItem: (id: string) => Promise<Cart | undefined>
+  updateCart: (id: string, count: number) => Promise<void>
+  clearCart: () => Promise<void>
+  afterPayment: () => void
+}
 
-export const cartContext = createContext({} as any)
+export const cartContext = createContext<CartContextType>({} as CartContextType)
 
 const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [numOfCartItems, setNumOfCartItems] = useState(0)
-  const [totalCartPrice, setTotalCartPrice] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [products, setProducts] = useState([])
-    const [cartId, setCartId] = useState("")
-
+  const [numOfCartItems, setNumOfCartItems] = useState<number>(0)
+  const [totalCartPrice, setTotalCartPrice] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [products, setProducts] = useState<ProductCart[]>([])   // 👈 هنا الأساس
+  const [cartId, setCartId] = useState<string>("")
 
   // اضافة منتج للكارت
   async function addProductToCart(id: string) {
@@ -30,7 +41,6 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  
   async function removeCartItem(id: string) {
     try {
       const data: Cart = await removeCartItemAction(id)
@@ -42,37 +52,32 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
       console.log(error)
     }
   }
-  async function updateCart(id:string , count: number) {
+
+  async function updateCart(id: string, count: number) {
     setIsLoading(true)
     try {
-      const data = await updateCartAction(id , count)
-            setNumOfCartItems(data.numOfCartItems)
+      const data: Cart = await updateCartAction(id, count)
+      setNumOfCartItems(data.numOfCartItems)
       setProducts(data.data.products)
       setTotalCartPrice(data.data.totalCartPrice)
-    setIsLoading(false)
-
+      setIsLoading(false)
     } catch (error) {
-      console.log(error);
-      
+      console.log(error)
     }
-    
   }
- async function clearCart(){
-     try {
-      const data = await clearCartAction()
-            setNumOfCartItems(0)
+
+  async function clearCart() {
+    try {
+      await clearCartAction()
+      setNumOfCartItems(0)
       setProducts([])
       setTotalCartPrice(0)
-    setIsLoading(false)
-
+      setIsLoading(false)
     } catch (error) {
-      console.log(error);
-      
+      console.log(error)
     }
-    
   }
 
-  
   async function getUserCart() {
     setIsLoading(true)
     try {
@@ -91,7 +96,8 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     getUserCart()
   }, [])
-  function afterPayment(){
+
+  function afterPayment() {
     setCartId("")
     setNumOfCartItems(0)
     setTotalCartPrice(0)
@@ -110,7 +116,7 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
         updateCart,
         clearCart,
         cartId,
-        afterPayment
+        afterPayment,
       }}
     >
       {children}
