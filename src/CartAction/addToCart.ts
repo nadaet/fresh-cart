@@ -18,9 +18,10 @@ export async function AddToCartAction(id: string) {
       "https://ecommerce.routemisr.com/api/v1/cart",
       values,
       {
-        headers: {
-          Authorization: token, 
-        },
+      headers: {
+  Authorization: `Bearer ${String(token)}`,
+},
+
       }
     );
 
