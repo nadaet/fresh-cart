@@ -19,7 +19,8 @@ export async function AddToCartAction(id: string) {
       values,
       {
         headers: {
-          token: token, }
+          Authorization: token, 
+        },
       }
     );
 
