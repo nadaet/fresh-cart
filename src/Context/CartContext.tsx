@@ -53,18 +53,21 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  async function updateCart(id: string, count: number) {
-    setIsLoading(true)
-    try {
-      const data: Cart = await updateCartAction(id, count)
-      setNumOfCartItems(data.numOfCartItems)
-      setProducts(data.data.products)
-      setTotalCartPrice(data.data.totalCartPrice)
-      setIsLoading(false)
-    } catch (error) {
-      console.log(error)
-    }
+  async function updateCart(id: string, count: number): Promise<Cart | undefined> {
+  setIsLoading(true)
+  try {
+    const data: Cart = await updateCartAction(id, count)
+    setNumOfCartItems(data.numOfCartItems)
+    setProducts(data.data.products)
+    setTotalCartPrice(data.data.totalCartPrice)
+    setIsLoading(false)
+    return data   // 👈 كده هترجع الداتا
+  } catch (error) {
+    console.log(error)
+    setIsLoading(false)
   }
+}
+
 
   async function clearCart() {
     try {

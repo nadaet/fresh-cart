@@ -29,19 +29,20 @@ const Cart = () => {
   }
 
   async function handleUpdate(id: string, count: number) {
-    const data = await updateCart(id, count)
-    if (data?.status === "success") {
-      toast.success("Cart updated", {
-        duration: 1000,
-        position: "top-center",
-      })
-    } else {
-      toast.error("Failed to update cart", {
-        duration: 1000,
-        position: "top-center",
-      })
-    }
+  const data = await updateCart(id, count)
+  if (data?.status === "success") {
+    toast.success("Cart updated", {
+      duration: 1000,
+      position: "top-center",
+    })
+  } else {
+    toast.error("Failed", {
+      duration: 1000,
+      position: "top-center",
+    })
   }
+}
+
 
   if (isLoading) {
     return <Loading />
@@ -104,23 +105,14 @@ const Cart = () => {
 
               {/* controls */}
               <div className='flex items-center gap-2'>
-                <Button 
-                  onClick={()=>handleUpdate(product.product.id , product.count + 1)}
-                  variant="outline"
-                  size="sm"
-                  className="border-green-600 text-black"
-                >
-                  +
-                </Button>
-                <p className="px-2">{product.count}</p>
-                <Button 
-                  onClick={()=>handleUpdate(product.product.id , product.count - 1)}
-                  variant="outline"
-                  size="sm"
-                  className="border-green-600 text-black"
-                >
-                  -
-                </Button>
+                <Button onClick={()=>handleUpdate(product.product.id , product.count + 1)}>
+  +
+</Button>
+
+<Button onClick={()=>handleUpdate(product.product.id , product.count - 1)}>
+  -
+</Button>
+
               </div>
             </div>
           ))}
