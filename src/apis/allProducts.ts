@@ -1,6 +1,7 @@
-export default async function getAllProducts(){
- const response = await fetch("https://ecommerce.routemisr.com/api/v1/products");
-  const { data } = await response.json();
+import { Product } from "@/types/product.type"
 
-  return data
+export default async function getAllProducts(): Promise<Product[]> {
+  const response = await fetch("https://ecommerce.routemisr.com/api/v1/products")
+  const { data } = await response.json()
+  return data as Product[]
 }
