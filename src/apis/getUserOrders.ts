@@ -12,8 +12,7 @@ export async function getUserOrder() {
   const token = await getMyToken()
 
   if (!token) {
-    window.location.href = "/login"
-  }
+return null  }
 
   const { id } = jwtDecode<JwtPayload>(token as string)
 
