@@ -1,10 +1,9 @@
-// ملف: types/cart.type.ts
-
+// ملف أنواع الكارت
 export type ProductCart = {
   count: number
   price: number
   product: {
-    _id: string        // ✅ مهم جداً يكون _id مش id
+    _id: string        // مهم جداً يكون _id
     title: string
     imageCover: string
     category: {

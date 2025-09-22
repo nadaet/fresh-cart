@@ -1,22 +1,15 @@
-"use server"
-
 import { getMyToken } from "@/utilities/token"
 import axios from "axios"
-import { headers } from "next/headers"
+import { Cart } from "@/types/cart.type"
 
- export async function updateCartAction(id: string, count:number){
-const token = await getMyToken()
-if(!token){
-    throw Error("Login First")
-}
-const value = {
-    count: count
-}
-const {data} = await axios.put(`https://ecommerce.routemisr.com/api/v1/cart/${id}`, value ,{ 
-    headers:{
-        token : token as string
-    }
- })
- return data
+export async function updateCartAction(id: string, count: number): Promise<Cart> {
+  const token = await getMyToken()
+  if (!token) throw new Error("No token found")
 
+  const { data } = await axios.put<Cart>(
+    `https://ecommerce.routemisr.com/api/v1/cart/${id}`,
+    { count },
+    { headers: { token: String(token) } }
+  )
+  return data
 }

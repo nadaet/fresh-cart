@@ -23,12 +23,8 @@ const Cart = () => {
   // 🗑️ حذف منتج
   async function handleRemove(id: string) {
     try {
-      const data = await removeCartItem(id)
-      if (data?.status === "success") {
-        toast.success("Product removed from cart", { duration: 1000, position: "top-center" })
-      } else {
-        toast.error("Failed to remove product", { duration: 1000, position: "top-center" })
-      }
+      await removeCartItem(id)
+      toast.success("Product removed from cart", { duration: 1000, position: "top-center" })
     } catch (error) {
       toast.error("Something went wrong", { duration: 1000 })
       console.error(error)
@@ -42,12 +38,8 @@ const Cart = () => {
       return
     }
     try {
-      const data = await updateCart(id, count)
-      if (data?.status === "success") {
-        toast.success("Cart updated", { duration: 1000, position: "top-center" })
-      } else {
-        toast.error("Failed to update cart", { duration: 1000, position: "top-center" })
-      }
+      await updateCart(id, count)
+      toast.success("Cart updated", { duration: 1000, position: "top-center" })
     } catch (error) {
       toast.error("Something went wrong", { duration: 1000 })
       console.error(error)

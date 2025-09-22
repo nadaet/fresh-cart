@@ -1,20 +1,13 @@
 import { getMyToken } from "@/utilities/token"
-import axios from "axios"
+import { Cart } from "@/types/cart.type"
 
-export async function getUserCartAction() {
-  try {
-    const token = await getMyToken()
-    if (!token) throw new Error("No token found, user not logged in")
+export async function getUserCartAction(): Promise<Cart> {
+  const token = await getMyToken()
+  if (!token) throw new Error("No token found")
 
-    const { data } = await axios.get(
-      "https://ecommerce.routemisr.com/api/v1/cart",
-      { headers: { token: String(token) } }
-    )
-
-    console.log("🛒 UserCart Response:", data)
-    return data
-  } catch (error: any) {
-    console.error("❌ getUserCart Error:", error.response?.data || error.message)
-    throw error
-  }
+  const response = await fetch("https://ecommerce.routemisr.com/api/v1/cart", {
+    headers: { token }
+  })
+  const data: Cart = await response.json()
+  return data
 }

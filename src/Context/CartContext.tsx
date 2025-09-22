@@ -1,140 +1,128 @@
 "use client"
 
 import React, { createContext, useState, useEffect, ReactNode } from "react"
+import { Cart, ProductCart } from "@/types/cart.type"
 import { getUserCartAction } from "@/CartAction/getUserCart"
 import { AddToCartAction } from "@/CartAction/addToCart"
 import { removeCartItemAction } from "@/CartAction/removeCartItem"
 import { updateCartAction } from "@/CartAction/updateCart"
 import { clearCartAction } from "@/CartAction/clearCart"
-import { Cart, ProductCart } from "@/types/cart.type"
+import { toast } from "sonner"
 
-type CartContextType = {
+interface CartContextType {
   isLoading: boolean
-  numOfCartItems: number
   products: ProductCart[]
+  numOfCartItems: number
   totalCartPrice: number
   cartId: string
-  addProductToCart: (id: string) => Promise<Cart | undefined>
-  removeCartItem: (id: string) => Promise<Cart | undefined>
-  updateCart: (id: string, count: number) => Promise<Cart | undefined>
+  addProductToCart: (id: string) => Promise<void>
+  removeCartItem: (id: string) => Promise<void>
+  updateCart: (id: string, count: number) => Promise<void>
   clearCart: () => Promise<void>
+  refreshCart: () => Promise<void>
   afterPayment: () => void
 }
 
 export const cartContext = createContext<CartContextType>({} as CartContextType)
 
 const CartContextProvider = ({ children }: { children: ReactNode }) => {
+  const [products, setProducts] = useState<ProductCart[]>([])
   const [numOfCartItems, setNumOfCartItems] = useState(0)
   const [totalCartPrice, setTotalCartPrice] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [products, setProducts] = useState<ProductCart[]>([])
   const [cartId, setCartId] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  // 🔹 Get User Cart
-  async function getUserCart() {
+  const refreshCart = async () => {
     setIsLoading(true)
     try {
       const data: Cart = await getUserCartAction()
-      if (data) {
-        setNumOfCartItems(data.numOfCartItems)
-        setProducts(data.data.products)
-        setTotalCartPrice(data.data.totalCartPrice)
-        setCartId(data.cartId)
-      }
-      return data
+      setProducts(data.data.products)
+      setNumOfCartItems(data.numOfCartItems)
+      setTotalCartPrice(data.data.totalCartPrice)
+      setCartId(data.cartId)
     } catch (error) {
-      console.error("❌ Error fetching cart:", error)
+      console.error(error)
+      toast.error("Failed to fetch cart")
     } finally {
       setIsLoading(false)
     }
   }
 
-  // 🔹 Add Product - تحديث مباشر للـ state
-  async function addProductToCart(id: string) {
+  const addProductToCart = async (id: string) => {
     try {
-      const data: Cart = await AddToCartAction(id)
-      if (data) {
-        setNumOfCartItems(data.numOfCartItems)
-        setProducts(data.data.products)
-        setTotalCartPrice(data.data.totalCartPrice)
-        setCartId(data.cartId)
-      }
-      return data
+      await AddToCartAction(id)
+      await refreshCart()
+      toast.success("Product added to cart")
     } catch (error) {
-      console.error("❌ Error adding to cart:", error)
+      console.error(error)
+      toast.error("Failed to add product")
     }
   }
 
-  // 🔹 Remove Product
-  async function removeCartItem(id: string) {
+  const removeCartItem = async (id: string) => {
     try {
       const data: Cart = await removeCartItemAction(id)
-      if (data) {
-        setNumOfCartItems(data.numOfCartItems)
-        setProducts(data.data.products)
-        setTotalCartPrice(data.data.totalCartPrice)
-      }
-      return data
+      setProducts(data.data.products)
+      setNumOfCartItems(data.numOfCartItems)
+      setTotalCartPrice(data.data.totalCartPrice)
+      toast.success("Product removed from cart")
     } catch (error) {
-      console.error("❌ Error removing cart item:", error)
+      console.error(error)
+      toast.error("Failed to remove product")
     }
   }
 
-  // 🔹 Update Quantity
-  async function updateCart(id: string, count: number) {
-    setIsLoading(true)
+  const updateCart = async (id: string, count: number) => {
     try {
       const data: Cart = await updateCartAction(id, count)
-      if (data) {
-        setNumOfCartItems(data.numOfCartItems)
-        setProducts(data.data.products)
-        setTotalCartPrice(data.data.totalCartPrice)
-      }
-      return data
+      setProducts(data.data.products)
+      setNumOfCartItems(data.numOfCartItems)
+      setTotalCartPrice(data.data.totalCartPrice)
+      toast.success("Cart updated")
     } catch (error) {
-      console.error("❌ Error updating cart:", error)
-    } finally {
-      setIsLoading(false)
+      console.error(error)
+      toast.error("Failed to update cart")
     }
   }
 
-  // 🔹 Clear Cart
-  async function clearCart() {
+  const clearCart = async () => {
     try {
       await clearCartAction()
-      setNumOfCartItems(0)
       setProducts([])
+      setNumOfCartItems(0)
       setTotalCartPrice(0)
       setCartId("")
+      toast.success("Cart cleared")
     } catch (error) {
-      console.error("❌ Error clearing cart:", error)
+      console.error(error)
+      toast.error("Failed to clear cart")
     }
   }
 
-  // 🔹 After Payment
-  function afterPayment() {
-    setCartId("")
+  const afterPayment = () => {
+    setProducts([])
     setNumOfCartItems(0)
     setTotalCartPrice(0)
-    setProducts([])
+    setCartId("")
   }
 
   useEffect(() => {
-    getUserCart()
+    refreshCart()
   }, [])
 
   return (
     <cartContext.Provider
       value={{
         isLoading,
-        numOfCartItems,
         products,
+        numOfCartItems,
         totalCartPrice,
+        cartId,
         addProductToCart,
         removeCartItem,
         updateCart,
         clearCart,
-        cartId,
+        refreshCart,
         afterPayment,
       }}
     >
