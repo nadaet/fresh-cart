@@ -33,7 +33,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ id: string }> }) =
           </div>
         </div>
 
-      <AddBtnCart id={data.id}/>
+<AddBtnCart productId={data.id} />
       </div>
     </div>
   )
