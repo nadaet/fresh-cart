@@ -1,6 +1,4 @@
-// src/Context/CartContext.tsx
 "use client"
-
 import React, { createContext, useState, useEffect, ReactNode } from "react"
 import { toast } from "sonner"
 import { Cart, ProductCart } from "@/types/cart.type"
@@ -35,32 +33,31 @@ export const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   // تحديث الكارت من السيرفر
-const refreshCart = async () => {
-  setIsLoading(true)
-  try {
-    const data = await getUserCartAction()   
-    if (data?.data) {
-      setProducts(data.data.products || [])
-      setNumOfCartItems(data.numOfCartItems || 0)
-      setTotalCartPrice(data.data.totalCartPrice || 0)
-      setCartId(data.cartId || "")
-    } else {
+  const refreshCart = async () => {
+    setIsLoading(true)
+    try {
+      const data = await getUserCartAction()   // ✅ هنا شيلنا :Cart
+      if (data?.data) {
+        setProducts(data.data.products || [])
+        setNumOfCartItems(data.numOfCartItems || 0)
+        setTotalCartPrice(data.data.totalCartPrice || 0)
+        setCartId(data.cartId || "")
+      } else {
+        setProducts([])
+        setNumOfCartItems(0)
+        setTotalCartPrice(0)
+        setCartId("")
+      }
+    } catch (error) {
+      console.error("Cart fetch error:", error)
       setProducts([])
       setNumOfCartItems(0)
       setTotalCartPrice(0)
       setCartId("")
+    } finally {
+      setIsLoading(false)
     }
-  } catch (error) {
-    console.error("Cart fetch error:", error)
-    setProducts([])
-    setNumOfCartItems(0)
-    setTotalCartPrice(0)
-    setCartId("")
-  } finally {
-    setIsLoading(false)
   }
-}
-
 
   // إضافة منتج للكارت
   const addProductToCart = async (id: string) => {
@@ -109,7 +106,7 @@ const refreshCart = async () => {
       return
     }
     try {
-const data: Cart | null = await updateCartAction(id, count)
+      const data = await updateCartAction(id, count) // ✅ هنا كمان شيلنا :Cart
       if (data?.data) {
         setProducts(data.data.products || [])
         setNumOfCartItems(data.numOfCartItems || 0)
