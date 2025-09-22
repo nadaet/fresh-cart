@@ -1,24 +1,39 @@
 "use server"
-
 import { getMyToken } from "@/utilities/token"
 import axios from "axios"
-import { jwtDecode } from "jwt-decode"
+import { Orders } from "@/types/order.type"
 
-interface JwtPayload {
-  id: string
-}
+export async function getUserOrder(): Promise<Orders> {
+  try {
+    const token = await getMyToken()
+    if (!token) {
+      console.error("No token found in cookies")
+      return []
+    }
 
-export async function getUserOrder() {
-  const token = await getMyToken()
+    // 📌 هنا هنجيب الـ userId من التوكن المفكوك
+    const decoded: any = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString()
+    )
+    const userId = decoded?.id || decoded?._id
+    if (!userId) {
+      console.error("No userId in decoded token")
+      return []
+    }
 
-  if (!token) {
-return null  }
+    // 📌 الأوردرات الخاصة باليوزر
+    const res = await axios.get(
+      `https://ecommerce.routemisr.com/api/v1/orders/user/${userId}`,
+      {
+        headers: {
+          token: token,
+        },
+      }
+    )
 
-  const { id } = jwtDecode<JwtPayload>(token as string)
-
-  const { data } = await axios.get(
-    `https://ecommerce.routemisr.com/api/v1/orders/user/${id}`
-  )
-
-  return data
+    return res.data || []
+  } catch (error) {
+    console.error("Error fetching orders:", error)
+    return []
+  }
 }

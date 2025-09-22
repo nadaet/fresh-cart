@@ -7,12 +7,15 @@ export async function getUserCartAction(): Promise<Cart | null> {
   if (!token) return null
 
   const response = await fetch("https://ecommerce.routemisr.com/api/v1/cart", {
+    method: "GET",   // 👈 واضح وصريح
     headers: {
       token: token,
     },
+    cache: "no-store", // 👈 علشان دايمًا يجيب آخر بيانات
   })
 
   if (!response.ok) {
+    console.error("Error fetching cart:", await response.text())
     throw new Error("Unexpected response from server")
   }
 

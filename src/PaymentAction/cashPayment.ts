@@ -13,7 +13,7 @@ export async function cashPaymentAction(id: string, values: object) {
     values,
     {
       headers: {
-        token: token as string,
+        token: token,
       },
     }
   )

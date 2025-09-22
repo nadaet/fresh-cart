@@ -35,7 +35,7 @@ const Payment = () => {
      })
       
      afterPayment()
-     router.push("/allOrders")
+     router.push("/allorders")
      
      
     } catch (error) {

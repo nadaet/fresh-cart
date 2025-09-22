@@ -23,10 +23,18 @@ const WishlistContextProvider = ({ children }: { children: React.ReactNode }) =>
   const refreshWishlist = async () => {
     setIsLoading(true)
     try {
-      const res: Root = await getUserWishlistAction()
-      setProducts(res.data)
+      const res: Root | null = await getUserWishlistAction()
+
+      if (!res) {
+        console.warn("⚠️ User not logged in, cannot fetch wishlist")
+        setProducts([]) // لو مش لوج إن، خليه فاضي
+        return
+      }
+
+      setProducts(res.data || [])
     } catch (error) {
-      console.error(error)
+      console.error("Error fetching wishlist:", error)
+      setProducts([])
     } finally {
       setIsLoading(false)
     }
@@ -34,7 +42,11 @@ const WishlistContextProvider = ({ children }: { children: React.ReactNode }) =>
 
   const addProductToWishlist = async (id: string) => {
     try {
-      await AddToWishlistAction(id)
+      const res = await AddToWishlistAction(id)
+      if (!res) {
+        console.warn("⚠️ Cannot add to wishlist, user not logged in")
+        return
+      }
       await refreshWishlist()
     } catch (error) {
       console.error(error)

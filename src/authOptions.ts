@@ -95,13 +95,18 @@ export const authOptions: AuthOptions = {
     },
 
     async session({ session, token }) {
-      session.user = {
-        id: token.id,
-        name: token.name,
-        email: token.email,
-        role: token.role,
-      };
-      return session;
-    },
+  session.user = {
+    id: token.id,
+    name: token.name,
+    email: token.email,
+    role: token.role,
+  };
+
+  // 👇 ضيفي التوكن هنا
+  (session as any).accessToken = token.token;
+
+  return session;
+}
+
   },
 };
