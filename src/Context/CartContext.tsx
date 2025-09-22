@@ -38,7 +38,7 @@ export const CartContextProvider = ({ children }: { children: ReactNode }) => {
 const refreshCart = async () => {
   setIsLoading(true)
   try {
-    const data = await getUserCartAction()   // 👈 كده تمام
+    const data = await getUserCartAction()   
     if (data?.data) {
       setProducts(data.data.products || [])
       setNumOfCartItems(data.numOfCartItems || 0)
