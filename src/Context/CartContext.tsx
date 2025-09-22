@@ -35,31 +35,32 @@ export const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   // تحديث الكارت من السيرفر
-  const refreshCart = async () => {
-    setIsLoading(true)
-    try {
-      const data: Cart = await getUserCartAction()
-      if (data?.data) {
-        setProducts(data.data.products || [])
-        setNumOfCartItems(data.numOfCartItems || 0)
-        setTotalCartPrice(data.data.totalCartPrice || 0)
-        setCartId(data.cartId || "")
-      } else {
-        setProducts([])
-        setNumOfCartItems(0)
-        setTotalCartPrice(0)
-        setCartId("")
-      }
-    } catch (error) {
-      console.error("Cart fetch error:", error)
+const refreshCart = async () => {
+  setIsLoading(true)
+  try {
+    const data = await getUserCartAction()   // 👈 كده تمام
+    if (data?.data) {
+      setProducts(data.data.products || [])
+      setNumOfCartItems(data.numOfCartItems || 0)
+      setTotalCartPrice(data.data.totalCartPrice || 0)
+      setCartId(data.cartId || "")
+    } else {
       setProducts([])
       setNumOfCartItems(0)
       setTotalCartPrice(0)
       setCartId("")
-    } finally {
-      setIsLoading(false)
     }
+  } catch (error) {
+    console.error("Cart fetch error:", error)
+    setProducts([])
+    setNumOfCartItems(0)
+    setTotalCartPrice(0)
+    setCartId("")
+  } finally {
+    setIsLoading(false)
   }
+}
+
 
   // إضافة منتج للكارت
   const addProductToCart = async (id: string) => {
