@@ -1,34 +1,23 @@
 "use client"
 
-import { AddToCartAction } from "@/CartAction/addToCart"
-import { getUserCartAction } from "@/CartAction/getUserCart"
-import { useContext } from "react"
+import React, { useContext } from "react"
 import { cartContext } from "@/Context/CartContext"
-import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 export default function AddBtnCart({ productId }: { productId: string }) {
-  const { setCart } = useContext(cartContext)
+  const { addProductToCart } = useContext(cartContext) 
 
   const handleAdd = async () => {
     try {
-      await AddToCartAction(productId)
-      toast.success("✅ المنتج اتضاف للكارت")
-
-      // ⬅️ بعد الإضافة هنعمل refresh للـ cart من السيرفر
-      const newCart = await getUserCartAction()
-      setCart(newCart)
-    } catch (err: any) {
-      toast.error("❌ حصل خطأ أثناء الإضافة")
-      console.error(err)
+      await addProductToCart(productId)
+    } catch (error) {
+      console.error(error)
     }
   }
 
   return (
-    <button
-      onClick={handleAdd}
-      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-    >
+    <Button onClick={handleAdd} className="bg-green-600 text-white hover:bg-green-700">
       Add to Cart
-    </button>
+    </Button>
   )
 }
