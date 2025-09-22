@@ -109,7 +109,7 @@ const refreshCart = async () => {
       return
     }
     try {
-      const data: Cart = await updateCartAction(id, count)
+const data: Cart | null = await updateCartAction(id, count)
       if (data?.data) {
         setProducts(data.data.products || [])
         setNumOfCartItems(data.numOfCartItems || 0)
