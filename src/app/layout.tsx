@@ -5,7 +5,8 @@ import "./globals.css";
 import Navbar from "./_componentes/navbar/Navbar";
 import { Toaster } from "sonner";
 import Providers from "@/Providers";
-import WishlistContextProvider from "@/Context/WishlistContext"
+import WishlistContextProvider from "@/Context/WishlistContext";
+import CartContextProvider from "@/Context/CartContext"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,10 +34,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <WishlistContextProvider> {/* ⬅️ هنا لفينا كل الابلكيشن بالكونتكست */}
-            <Toaster />
-            <Navbar />
-            {children}
+          <WishlistContextProvider>
+            <CartContextProvider> 
+              <Toaster />
+              <Navbar />
+              {children}
+            </CartContextProvider>
           </WishlistContextProvider>
         </Providers>
       </body>

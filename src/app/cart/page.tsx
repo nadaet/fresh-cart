@@ -1,119 +1,135 @@
 "use client"
-import { cartContext } from '@/Context/CartContext'
-import React, { useContext } from 'react'
-import Loading from '../loading'
-import { ProductCart } from '@/types/cart.type';
-import Image from 'next/image'
-import { Button } from '@/components/ui/button';
-import { removeCartItemAction } from '@/CartAction/removeCartItem';
-import { toast } from 'sonner';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import Link from 'next/link';
+import { cartContext } from "@/Context/CartContext"
+import React, { useContext } from "react"
+import Loading from "../loading"
+import { ProductCart } from "@/types/cart.type"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import Link from "next/link"
 
 const Cart = () => {
-  const { isLoading, products, totalCartPrice, removeCartItem ,updateCart,clearCart } = useContext(cartContext)
+  const { 
+    isLoading, 
+    products, 
+    totalCartPrice, 
+    removeCartItem, 
+    updateCart, 
+    clearCart 
+  } = useContext(cartContext)
 
-  async function removeItem(id: string) {
+  // 🗑️ حذف منتج
+  async function handleRemove(id: string) {
     const data = await removeCartItem(id)
     if (data?.status === "success") {
-      toast.success("Success to remove from cart", {
+      toast.success("Product removed from cart", {
         duration: 1000,
         position: "top-center",
       })
     } else {
-      toast.error("Failed to remove from cart", {
+      toast.error("Failed to remove product", {
         duration: 1000,
         position: "top-center",
       })
     }
   }
 
+  // 🔄 تحديث عدد القطع
   async function handleUpdate(id: string, count: number) {
-  const data = await updateCart(id, count)
-  if (data?.status === "success") {
-    toast.success("Cart updated", {
-      duration: 1000,
-      position: "top-center",
-    })
-  } else {
-    toast.error("Failed", {
-      duration: 1000,
-      position: "top-center",
-    })
+    if (count < 1) {
+      toast.error("Count must be at least 1", { duration: 1000 })
+      return
+    }
+    const data = await updateCart(id, count)
+    if (data?.status === "success") {
+      toast.success("Cart updated", {
+        duration: 1000,
+        position: "top-center",
+      })
+    } else {
+      toast.error("Failed to update cart", {
+        duration: 1000,
+        position: "top-center",
+      })
+    }
   }
-}
 
-
+  // 🌀 تحميل البيانات
   if (isLoading) {
     return <Loading />
   }
 
-  if(products.length == 0) {
+  // 🛒 لو الكارت فاضي
+  if (products.length === 0) {
     return (
       <div className="flex justify-center items-center">
-        <Card className='w-3xl mt-6'>
+        <Card className="w-3xl mt-6">
           <CardHeader>
-            <CardTitle className='text-3xl text-green-600'>Cart shop</CardTitle>
+            <CardTitle className="text-3xl text-green-600">Cart</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className='text-2xl'>Cart is empty, try to add products</p>
+            <p className="text-2xl">Cart is empty, try to add products</p>
           </CardContent>
         </Card>
       </div>
     )
   }
 
+  // ✅ لو فيه منتجات
   return (
-    <div className='w-full md:w-[80%] mx-auto my-10 px-5 md:px-0 bg-slate-100'>
-      <div className='p-5'>
-        <h1 className='text-2xl font-bold'>Cart Shop</h1>
-        <p className="text-lg font-medium">
-          total price :{" "}
-          <span className="text-green-600 font-mono">{totalCartPrice}</span>{" "}
-          EGP
+    <div className="w-full md:w-[80%] mx-auto my-10 px-5 md:px-0 bg-slate-100 rounded-xl shadow-sm">
+      <div className="p-5">
+        <h1 className="text-2xl font-bold mb-3">Cart Shop</h1>
+        <p className="text-lg font-medium mb-5">
+          Total price:{" "}
+          <span className="text-green-600 font-mono">{totalCartPrice}</span> EGP
         </p>
-        <Button className='mb-10 ms-5 bg-green-600 hover:bg-red-500'>
-          <Link href={"/payment"}>CheckOut </Link>
+        
+        {/* Checkout */}
+        <Button className="mb-10 ms-5 bg-green-600 hover:bg-red-500">
+          <Link href={"/payment"}>CheckOut</Link>
         </Button>
 
-        <div className='allProducts'>
+        {/* Products */}
+        <div className="allProducts space-y-4">
           {products.map((product: ProductCart, idx: number) => (
-            <div key={idx} className='flex items-center justify-between border-b py-3'>
+            <div key={idx} className="flex items-center justify-between border-b py-3">
+              
               {/* product details */}
-              <div className='flex items-center gap-4 mb-2'>
+              <div className="flex items-center gap-4">
+                <Image
+                  alt={product.product.title}
+                  src={product.product.imageCover}
+                  height={100}
+                  width={100}
+                  className="rounded-lg"
+                />
                 <div>
-                  <Image
-                    alt="sora"
-                    src={product.product.imageCover}
-                    height={200}
-                    width={200}
-                  />
-                </div>
-                <div>
-                  <h1 className="font-medium text-2xl">{product.product.title}</h1>
+                  <h1 className="font-medium text-xl">{product.product.title}</h1>
                   <p className="font-medium">{product.price} EGP</p>
 
-                 <Button
-  onClick={() => removeItem(product.product._id)}   // ✅
-  variant="ghost"
-  className="text-red-600"
->
-  <i className="fa-solid fa-trash"></i> Remove
-</Button>
+                  <Button
+                    onClick={() => handleRemove(product.product._id)}
+                    variant="ghost"
+                    className="text-red-600"
+                  >
+                    <i className="fa-solid fa-trash"></i> Remove
+                  </Button>
                 </div>
               </div>
 
               {/* controls */}
-<div className='flex items-center gap-2'>
-  <Button onClick={()=>handleUpdate(product.product._id , product.count + 1)}> + </Button>
-  <Button onClick={()=>handleUpdate(product.product._id , product.count - 1)}> - </Button>
-</div>
-
+              <div className="flex items-center gap-2">
+                <Button onClick={() => handleUpdate(product.product._id, product.count + 1)}> + </Button>
+                <span className="font-bold">{product.count}</span>
+                <Button onClick={() => handleUpdate(product.product._id, product.count - 1)}> - </Button>
               </div>
-            
+            </div>
           ))}
         </div>
 
+        {/* Clear cart */}
         <div className="flex justify-center mt-5">
           <Button
             onClick={clearCart}
