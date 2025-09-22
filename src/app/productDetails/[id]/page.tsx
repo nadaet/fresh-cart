@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button"
 import Image from 'next/image'
 import AddBtnCart from '@/app/_componentes/navbar/AddBtnCart/AddBtnCart'
 
-const ProductDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params   // ✅ لازم await
+const ProductDetails = async ({ params }: { params: { id: string } }) => {
+  const { id } = params
   const data = await getSingleProduct(id)
 
   return (
@@ -37,7 +37,7 @@ const ProductDetails = async ({ params }: { params: Promise<{ id: string }> }) =
         </div>
 
         {/* زر إضافة الكارت */}
-        <AddBtnCart productId={data._id} />
+    <AddBtnCart productId={data._id} />  
       </div>
     </div>
   )
