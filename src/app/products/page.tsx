@@ -3,13 +3,13 @@
 import React, { useEffect, useState, useContext } from "react"
 import getAllProducts from "@/apis/allProducts"
 import { Input } from "@/components/ui/input"
-import { Product } from "@/types/product.type"   // ✅ استخدم Product بدل Daum
+import { Product } from "@/types/product.type"
 import { toast } from "sonner"
 import { wishlistContext } from "@/Context/WishlistContext"
 import { cartContext } from "@/Context/CartContext"
 
 export default function ProductPage() {
-  const [products, setProducts] = useState<Product[]>([])  // ✅ Product[]
+  const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState("")
 
   const { products: wishlistProducts, addProductToWishlist, removeProductFromWishlist } =
@@ -18,8 +18,13 @@ export default function ProductPage() {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const data: Product[] = await getAllProducts()   // ✅ Product[]
-      setProducts(data)
+      try {
+        const data: Product[] = await getAllProducts()
+        setProducts(data)
+      } catch (error) {
+        console.error(error)
+        toast.error("Failed to fetch products", { duration: 1000, position: "top-center" })
+      }
     }
     fetchProducts()
   }, [])
@@ -81,7 +86,7 @@ export default function ProductPage() {
                 className="w-full h-52 object-cover rounded-md"
               />
 
-              <h2 className="font-medium mt-3 text-left">{product.category?.name}</h2>
+              <h2 className="font-medium mt-3 text-left">{product.category?.name || "Uncategorized"}</h2>
               <h2 className="font-medium mt-1 text-left line-clamp-1">{product.title}</h2>
 
               <div className="flex items-center justify-between mt-2">

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
-import { authOptions } from "@/auth"  // مكان ملف authOptions بتاعك
+import { authOptions } from "@/authOptions"  // مكان ملف authOptions بتاعك
 import getAllProducts from "@/apis/allProducts"
 import { Product } from "@/types/product.type"
 import HomeCard from "./_componentes/navbar/HomeCard/HomeCard"

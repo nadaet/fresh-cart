@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, createContext } from "react"
+import React, { createContext, useState, useEffect, ReactNode } from "react"
 import { getUserCartAction } from "@/CartAction/getUserCart"
 import { AddToCartAction } from "@/CartAction/addToCart"
 import { removeCartItemAction } from "@/CartAction/removeCartItem"
@@ -23,7 +23,7 @@ type CartContextType = {
 
 export const cartContext = createContext<CartContextType>({} as CartContextType)
 
-const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
+const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [numOfCartItems, setNumOfCartItems] = useState(0)
   const [totalCartPrice, setTotalCartPrice] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -49,11 +49,16 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  // 🔹 Add Product
+  // 🔹 Add Product - تحديث مباشر للـ state
   async function addProductToCart(id: string) {
     try {
       const data: Cart = await AddToCartAction(id)
-      await getUserCart() // تحديث الكارت بعد الإضافة
+      if (data) {
+        setNumOfCartItems(data.numOfCartItems)
+        setProducts(data.data.products)
+        setTotalCartPrice(data.data.totalCartPrice)
+        setCartId(data.cartId)
+      }
       return data
     } catch (error) {
       console.error("❌ Error adding to cart:", error)
@@ -64,9 +69,11 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
   async function removeCartItem(id: string) {
     try {
       const data: Cart = await removeCartItemAction(id)
-      setNumOfCartItems(data.numOfCartItems)
-      setProducts(data.data.products)
-      setTotalCartPrice(data.data.totalCartPrice)
+      if (data) {
+        setNumOfCartItems(data.numOfCartItems)
+        setProducts(data.data.products)
+        setTotalCartPrice(data.data.totalCartPrice)
+      }
       return data
     } catch (error) {
       console.error("❌ Error removing cart item:", error)
@@ -78,9 +85,11 @@ const CartContextProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true)
     try {
       const data: Cart = await updateCartAction(id, count)
-      setNumOfCartItems(data.numOfCartItems)
-      setProducts(data.data.products)
-      setTotalCartPrice(data.data.totalCartPrice)
+      if (data) {
+        setNumOfCartItems(data.numOfCartItems)
+        setProducts(data.data.products)
+        setTotalCartPrice(data.data.totalCartPrice)
+      }
       return data
     } catch (error) {
       console.error("❌ Error updating cart:", error)

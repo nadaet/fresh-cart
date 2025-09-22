@@ -41,8 +41,7 @@ export const authOptions: AuthOptions = {
             id: payload.user._id,
             name: payload.user.name,
             email: payload.user.email,
-            // بنضيف التوكن هنا لكن كـ casting عشان الـ type بتاع User مش فيه token
-            token: payload.token,
+            accessToken: payload.token, // 👈 نخزنها هنا باسم accessToken
           } as unknown as User
         }
 
@@ -57,7 +56,7 @@ export const authOptions: AuthOptions = {
         token.id = (user as any).id
         token.name = user.name
         token.email = user.email
-        token.token = (user as any).token
+        token.accessToken = (user as any).accessToken // 👈 نخزنها هنا برضه بنفس الاسم
       }
       return token
     },
@@ -69,7 +68,7 @@ export const authOptions: AuthOptions = {
           name: token.name as string,
           email: token.email as string,
         }
-        ;(session as any).accessToken = token.token
+        ;(session as any).accessToken = token.accessToken // 👈 ونبعتها للفرونت
       }
       return session
     },
