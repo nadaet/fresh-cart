@@ -1,4 +1,5 @@
 "use client"
+
 import { cartContext } from "@/Context/CartContext"
 import React, { useContext } from "react"
 import Loading from "../loading"
@@ -21,17 +22,16 @@ const Cart = () => {
 
   // 🗑️ حذف منتج
   async function handleRemove(id: string) {
-    const data = await removeCartItem(id)
-    if (data?.status === "success") {
-      toast.success("Product removed from cart", {
-        duration: 1000,
-        position: "top-center",
-      })
-    } else {
-      toast.error("Failed to remove product", {
-        duration: 1000,
-        position: "top-center",
-      })
+    try {
+      const data = await removeCartItem(id)
+      if (data?.status === "success") {
+        toast.success("Product removed from cart", { duration: 1000, position: "top-center" })
+      } else {
+        toast.error("Failed to remove product", { duration: 1000, position: "top-center" })
+      }
+    } catch (error) {
+      toast.error("Something went wrong", { duration: 1000 })
+      console.error(error)
     }
   }
 
@@ -41,35 +41,35 @@ const Cart = () => {
       toast.error("Count must be at least 1", { duration: 1000 })
       return
     }
-    const data = await updateCart(id, count)
-    if (data?.status === "success") {
-      toast.success("Cart updated", {
-        duration: 1000,
-        position: "top-center",
-      })
-    } else {
-      toast.error("Failed to update cart", {
-        duration: 1000,
-        position: "top-center",
-      })
+    try {
+      const data = await updateCart(id, count)
+      if (data?.status === "success") {
+        toast.success("Cart updated", { duration: 1000, position: "top-center" })
+      } else {
+        toast.error("Failed to update cart", { duration: 1000, position: "top-center" })
+      }
+    } catch (error) {
+      toast.error("Something went wrong", { duration: 1000 })
+      console.error(error)
     }
   }
 
   // 🌀 تحميل البيانات
-  if (isLoading) {
-    return <Loading />
-  }
+  if (isLoading) return <Loading />
 
   // 🛒 لو الكارت فاضي
   if (products.length === 0) {
     return (
       <div className="flex justify-center items-center">
-        <Card className="w-3xl mt-6">
+        <Card className="w-3xl mt-6 p-6 text-center">
           <CardHeader>
             <CardTitle className="text-3xl text-green-600">Cart</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl">Cart is empty, try to add products</p>
+            <p className="text-xl text-gray-600 mb-4">Cart is empty, try to add products</p>
+            <Link href="/products">
+              <Button className="bg-green-600 text-white">Browse Products</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -87,14 +87,14 @@ const Cart = () => {
         </p>
         
         {/* Checkout */}
-        <Button className="mb-10 ms-5 bg-green-600 hover:bg-red-500">
-          <Link href={"/payment"}>CheckOut</Link>
+        <Button className="mb-10 ms-5 bg-green-600 hover:bg-green-700">
+          <Link href="/payment">CheckOut</Link>
         </Button>
 
         {/* Products */}
-        <div className="allProducts space-y-4">
-          {products.map((product: ProductCart, idx: number) => (
-            <div key={idx} className="flex items-center justify-between border-b py-3">
+        <div className="space-y-4">
+          {products.map((product: ProductCart) => (
+            <div key={product.product._id} className="flex items-center justify-between border-b py-3">
               
               {/* product details */}
               <div className="flex items-center gap-4">
@@ -103,16 +103,16 @@ const Cart = () => {
                   src={product.product.imageCover}
                   height={100}
                   width={100}
-                  className="rounded-lg"
+                  className="rounded-lg object-cover"
                 />
                 <div>
-                  <h1 className="font-medium text-xl">{product.product.title}</h1>
-                  <p className="font-medium">{product.price} EGP</p>
+                  <h1 className="font-medium text-lg">{product.product.title}</h1>
+                  <p className="font-medium text-gray-700">{product.price} EGP</p>
 
                   <Button
                     onClick={() => handleRemove(product.product._id)}
                     variant="ghost"
-                    className="text-red-600"
+                    className="text-red-600 hover:text-red-800"
                   >
                     <i className="fa-solid fa-trash"></i> Remove
                   </Button>
@@ -134,7 +134,7 @@ const Cart = () => {
           <Button
             onClick={clearCart}
             variant="outline"
-            className="border-green-600"
+            className="border-green-600 text-green-600 hover:bg-green-50"
           >
             Clear Your Cart
           </Button>
