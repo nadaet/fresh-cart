@@ -4,25 +4,18 @@ import axios from "axios";
 export async function AddToCartAction(id: string) {
   try {
     const token = await getMyToken();
-    if (!token) {
-      throw new Error("No token found, user not logged in");
-    }
-
-    const values = { productId: id };
+    if (!token) throw new Error("No token found, user not logged in");
 
     const { data } = await axios.post(
       "https://ecommerce.routemisr.com/api/v1/cart",
-      values,
-      {
-        headers: {
-          token: String(token),   // ✅ موحد مع getUserCartAction
-        },
-      }
+      { productId: id },
+      { headers: { token: String(token) } }
     );
 
+    console.log("✅ AddToCart Response:", data); // هنا نعرف السيرفر بيرجع إيه
     return data;
   } catch (error: any) {
-    console.error("AddToCart error:", error.response?.data || error.message);
+    console.error("❌ AddToCart Error:", error.response?.data || error.message);
     throw error;
   }
 }
