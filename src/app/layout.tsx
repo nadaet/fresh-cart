@@ -6,7 +6,7 @@ import Navbar from "./_componentes/navbar/Navbar";
 import { Toaster } from "sonner";
 import Providers from "@/Providers";
 import WishlistContextProvider from "@/Context/WishlistContext";
-import CartContextProvider from "@/Context/CartContext"; 
+import {CartContextProvider} from "@/Context/CartContext"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

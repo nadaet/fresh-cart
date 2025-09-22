@@ -1,13 +1,14 @@
+// src/Context/CartContext.tsx
 "use client"
 
 import React, { createContext, useState, useEffect, ReactNode } from "react"
+import { toast } from "sonner"
+import { Cart, ProductCart } from "@/types/cart.type"
 import { getUserCartAction } from "@/CartAction/getUserCart"
 import { AddToCartAction } from "@/CartAction/addToCart"
 import { removeCartItemAction } from "@/CartAction/removeCartItem"
 import { updateCartAction } from "@/CartAction/updateCart"
 import { clearCartAction } from "@/CartAction/clearCart"
-import { Cart, ProductCart } from "@/types/cart.type"
-import { toast } from "sonner"
 
 interface CartContextType {
   isLoading: boolean
@@ -19,35 +20,26 @@ interface CartContextType {
   removeCartItem: (id: string) => Promise<void>
   updateCart: (id: string, count: number) => Promise<void>
   clearCart: () => Promise<void>
+  removeMultipleProducts: (ids: string[]) => Promise<void>
   refreshCart: () => Promise<void>
   afterPayment: () => void
 }
 
 export const cartContext = createContext<CartContextType>({} as CartContextType)
 
-const CartContextProvider = ({ children }: { children: ReactNode }) => {
+export const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<ProductCart[]>([])
   const [numOfCartItems, setNumOfCartItems] = useState(0)
   const [totalCartPrice, setTotalCartPrice] = useState(0)
   const [cartId, setCartId] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  // Refresh cart بأمان
+  // تحديث الكارت من السيرفر
   const refreshCart = async () => {
     setIsLoading(true)
     try {
-      const tokenExists = localStorage.getItem("token") // تأكد الـ token موجود
-      if (!tokenExists) {
-        // لو مش عامل login خلي الكارت فاضي
-        setProducts([])
-        setNumOfCartItems(0)
-        setTotalCartPrice(0)
-        setCartId("")
-        return
-      }
-
       const data: Cart = await getUserCartAction()
-      if (data && data.data) {
+      if (data?.data) {
         setProducts(data.data.products || [])
         setNumOfCartItems(data.numOfCartItems || 0)
         setTotalCartPrice(data.data.totalCartPrice || 0)
@@ -64,13 +56,12 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
       setNumOfCartItems(0)
       setTotalCartPrice(0)
       setCartId("")
-      // لو تحب تفعيل toast للخطأ
-      // toast.error("Failed to fetch cart")
     } finally {
       setIsLoading(false)
     }
   }
 
+  // إضافة منتج للكارت
   const addProductToCart = async (id: string) => {
     try {
       await AddToCartAction(id)
@@ -82,6 +73,7 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  // حذف منتج
   const removeCartItem = async (id: string) => {
     try {
       await removeCartItemAction(id)
@@ -94,6 +86,22 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  // مسح منتجات متعددة
+  const removeMultipleProducts = async (ids: string[]) => {
+    try {
+      for (const id of ids) {
+        await removeCartItemAction(id)
+      }
+      setProducts((prev) => prev.filter((p) => !ids.includes(p.product._id)))
+      setNumOfCartItems((prev) => Math.max(prev - ids.length, 0))
+      toast.success("Selected products removed", { duration: 1000, position: "top-center" })
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to remove selected products", { duration: 1000, position: "top-center" })
+    }
+  }
+
+  // تحديث عدد منتج
   const updateCart = async (id: string, count: number) => {
     if (count < 1) {
       toast.error("Count must be at least 1", { duration: 1000 })
@@ -101,7 +109,7 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       const data: Cart = await updateCartAction(id, count)
-      if (data && data.data) {
+      if (data?.data) {
         setProducts(data.data.products || [])
         setNumOfCartItems(data.numOfCartItems || 0)
         setTotalCartPrice(data.data.totalCartPrice || 0)
@@ -113,6 +121,7 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  // مسح الكارت كله
   const clearCart = async () => {
     try {
       await clearCartAction()
@@ -150,6 +159,7 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
         removeCartItem,
         updateCart,
         clearCart,
+        removeMultipleProducts,
         refreshCart,
         afterPayment,
       }}
@@ -158,5 +168,3 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     </cartContext.Provider>
   )
 }
-
-export default CartContextProvider
