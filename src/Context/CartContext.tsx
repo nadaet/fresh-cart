@@ -1,12 +1,12 @@
 "use client"
 
 import React, { createContext, useState, useEffect, ReactNode } from "react"
-import { Cart, ProductCart } from "@/types/cart.type"
 import { getUserCartAction } from "@/CartAction/getUserCart"
 import { AddToCartAction } from "@/CartAction/addToCart"
 import { removeCartItemAction } from "@/CartAction/removeCartItem"
 import { updateCartAction } from "@/CartAction/updateCart"
 import { clearCartAction } from "@/CartAction/clearCart"
+import { Cart, ProductCart } from "@/types/cart.type"
 import { toast } from "sonner"
 
 interface CartContextType {
@@ -32,17 +32,40 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [cartId, setCartId] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  // Refresh cart بأمان
   const refreshCart = async () => {
     setIsLoading(true)
     try {
+      const tokenExists = localStorage.getItem("token") // تأكد الـ token موجود
+      if (!tokenExists) {
+        // لو مش عامل login خلي الكارت فاضي
+        setProducts([])
+        setNumOfCartItems(0)
+        setTotalCartPrice(0)
+        setCartId("")
+        return
+      }
+
       const data: Cart = await getUserCartAction()
-      setProducts(data.data.products)
-      setNumOfCartItems(data.numOfCartItems)
-      setTotalCartPrice(data.data.totalCartPrice)
-      setCartId(data.cartId)
+      if (data && data.data) {
+        setProducts(data.data.products || [])
+        setNumOfCartItems(data.numOfCartItems || 0)
+        setTotalCartPrice(data.data.totalCartPrice || 0)
+        setCartId(data.cartId || "")
+      } else {
+        setProducts([])
+        setNumOfCartItems(0)
+        setTotalCartPrice(0)
+        setCartId("")
+      }
     } catch (error) {
-      console.error(error)
-      toast.error("Failed to fetch cart")
+      console.error("Cart fetch error:", error)
+      setProducts([])
+      setNumOfCartItems(0)
+      setTotalCartPrice(0)
+      setCartId("")
+      // لو تحب تفعيل toast للخطأ
+      // toast.error("Failed to fetch cart")
     } finally {
       setIsLoading(false)
     }
@@ -52,36 +75,41 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     try {
       await AddToCartAction(id)
       await refreshCart()
-      toast.success("Product added to cart")
+      toast.success("Product added to cart", { duration: 1000, position: "top-center" })
     } catch (error) {
       console.error(error)
-      toast.error("Failed to add product")
+      toast.error("Failed to add product", { duration: 1000, position: "top-center" })
     }
   }
 
   const removeCartItem = async (id: string) => {
     try {
-      const data: Cart = await removeCartItemAction(id)
-      setProducts(data.data.products)
-      setNumOfCartItems(data.numOfCartItems)
-      setTotalCartPrice(data.data.totalCartPrice)
-      toast.success("Product removed from cart")
+      await removeCartItemAction(id)
+      setProducts((prev) => prev.filter((p) => p.product._id !== id))
+      setNumOfCartItems((prev) => Math.max(prev - 1, 0))
+      toast.success("Product removed from cart", { duration: 1000, position: "top-center" })
     } catch (error) {
       console.error(error)
-      toast.error("Failed to remove product")
+      toast.error("Failed to remove product", { duration: 1000, position: "top-center" })
     }
   }
 
   const updateCart = async (id: string, count: number) => {
+    if (count < 1) {
+      toast.error("Count must be at least 1", { duration: 1000 })
+      return
+    }
     try {
       const data: Cart = await updateCartAction(id, count)
-      setProducts(data.data.products)
-      setNumOfCartItems(data.numOfCartItems)
-      setTotalCartPrice(data.data.totalCartPrice)
-      toast.success("Cart updated")
+      if (data && data.data) {
+        setProducts(data.data.products || [])
+        setNumOfCartItems(data.numOfCartItems || 0)
+        setTotalCartPrice(data.data.totalCartPrice || 0)
+        toast.success("Cart updated", { duration: 1000, position: "top-center" })
+      }
     } catch (error) {
       console.error(error)
-      toast.error("Failed to update cart")
+      toast.error("Failed to update cart", { duration: 1000, position: "top-center" })
     }
   }
 
@@ -92,10 +120,10 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
       setNumOfCartItems(0)
       setTotalCartPrice(0)
       setCartId("")
-      toast.success("Cart cleared")
+      toast.success("Cart cleared", { duration: 1000, position: "top-center" })
     } catch (error) {
       console.error(error)
-      toast.error("Failed to clear cart")
+      toast.error("Failed to clear cart", { duration: 1000, position: "top-center" })
     }
   }
 
