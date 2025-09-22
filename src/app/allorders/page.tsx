@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { getUserOrder } from '@/apis/getUserOrders'
 import { Orders } from '@/types/order.type'
 import Image from 'next/image'
